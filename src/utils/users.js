@@ -37,11 +37,6 @@ const removeUser = (id) => {
     if (index !== -1){
         return users.splice(index,1)[0]
     }
-
-    return {
-        error:'User does not exist'
-    }
-
 }
 
 const getUser = (id) => {
@@ -49,6 +44,7 @@ const getUser = (id) => {
 }
 
 const getUsersInRoom = (room) => {
+    console.log(room)
     room = room.trim().toLowerCase()
     return users.filter(user => user.room === room)
 }

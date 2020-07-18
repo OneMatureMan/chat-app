@@ -5,6 +5,7 @@ const socketio = require('socket.io')
 const Filter = require('bad-words')
 const { generateMessage, generateLocationMessage } = require('./utils/messages')
 const { addUser, removeUser, getUser, getUsersInRoom} = require('./utils/users')
+const sendRooms = require('./utils/rooms')
 
 const app = express()
 const server = http.createServer(app)
@@ -19,6 +20,19 @@ app.use(express.static(publicDirectoryPath))
 
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
+    var realRooms = Object.keys(io.sockets.adapter.rooms).reduce((filtered, key) => {
+        if(!io.sockets.adapter.rooms[key].sockets.hasOwnProperty(key)) {
+            filtered.push(key);
+        }
+        return filtered;
+    }, []);
+
+    socket.on('started', (callback) => {
+        io.emit('availableRooms', sendRooms(realRooms))
+
+    })
+    
+
 
     socket.on('join', (options,callback) => {
         const {error, user} = addUser({ id:socket.id , ...options })
@@ -32,6 +46,7 @@ io.on('connection', (socket) => {
         socket.emit('message', generateMessage('Welcome!','Admin'))
         socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`,'Admin'))
         const users = getUsersInRoom(user.room)
+        console.log(users)  
         io.to(user.room).emit('roomData', { room:user.room, users })
         callback()
     })
@@ -52,9 +67,11 @@ io.on('connection', (socket) => {
         const user = removeUser(socket.id)
 
         if (user) {  
-            const users = getUsersInRoom(user.room)
             io.to(user.room).emit('message', generateMessage(`${user.username} has left!`,'Admin'))
-            io.to(user.room).emit('roomData', { room:user.room, users})
+            io.to(user.room).emit('roomData', { 
+                room:user.room, 
+                users: getUsersInRoom(user.room)
+            })
           
         }
 

@@ -13,10 +13,24 @@
                     <label>Display name</label>
                     <input name='username' type="text" placeholder="Display name" autocomplete="off" required>
                     <label>Room</label>
-                    <input type="text" name="room" placeholder="Room" autocomplete="off" required>
+                    <input id='rooms-list' type="text" name="room" placeholder="Room" autocomplete="off" list="roomsList" required>
+                    <datalist id="roomsList">
+                        <!-- <div id='roomers'>
+                        </div> -->
+                    </datalist>
+                    
                     <button>Join</button>
                 </form>
             </div>
         </div>
+
+        <script id='rooms-template' type='text/html'>
+                {{#rooms}}
+                    <option value={{name}}>
+                {{/rooms}}
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+        <script src="socket.io/socket.io.js"></script>
+        <script src="/js/index.js"></script>
     </body>
 </html>
